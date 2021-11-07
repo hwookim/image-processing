@@ -30,40 +30,35 @@ def get_magnitude(img):
 
 
 def apply_low_pass_filter(img):
-    height, width = img.shape
-    kernel_size = 50
-    kernel = np.ones((kernel_size, kernel_size))
-    lp_filter_kernel = np.pad(kernel,
-                              ((height//2 - kernel_size//2, width//2 - kernel_size//2),
-                               (height//2 - kernel_size//2, width//2 - kernel_size//2)),
-                              'constant')
+    lp_filter = generate_lp_filter(img, 50)
 
     fourier = fft.fft2(img)
     shifted_fouirer = fft.fftshift(fourier)
     phase_img = np.angle(shifted_fouirer)
 
-    lp_filtered_fourier = np.multiply(
-        np.abs(shifted_fouirer), lp_filter_kernel)
-    recon_img_hp = np.multiply(lp_filtered_fourier, np.exp(1j * phase_img))
-    return np.minimum(np.abs(np.real(fft.ifft2(fft.fftshift(recon_img_hp)))), 255)
+    lp_filtered_fourier = np.multiply(np.abs(shifted_fouirer), lp_filter)
+    recon_img_lp = np.multiply(lp_filtered_fourier, np.exp(1j * phase_img))
+    return np.minimum(np.abs(np.real(fft.ifft2(fft.fftshift(recon_img_lp)))), 255)
+
+
+def generate_lp_filter(img, kernel_size):
+    height, width = img.shape
+    kernel = np.ones((kernel_size, kernel_size))
+    return np.pad(kernel,
+                  ((height//2 - kernel_size//2, width//2 - kernel_size//2),
+                   (height//2 - kernel_size//2, width//2 - kernel_size//2)),
+                  'constant')
 
 
 def apply_high_pass_filter(img):
     height, width = img.shape
-    kernel_size = 50
-    kernel = np.ones((kernel_size, kernel_size))
-    lp_filter_kernel = np.pad(kernel,
-                              ((height//2 - kernel_size//2, width//2 - kernel_size//2),
-                               (height//2 - kernel_size//2, width//2 - kernel_size//2)),
-                              'constant')
-    hp_filter_kernel = np.ones((height, width)) - lp_filter_kernel
+    hp_filter = np.ones((height, width)) - generate_lp_filter(img, 50)
 
     fourier = fft.fft2(img)
     shifted_fouirer = fft.fftshift(fourier)
     phase_img = np.angle(shifted_fouirer)
 
-    hp_filtered_fourier = np.multiply(
-        np.abs(shifted_fouirer), hp_filter_kernel)
+    hp_filtered_fourier = np.multiply(np.abs(shifted_fouirer), hp_filter)
     recon_img_hp = np.multiply(hp_filtered_fourier, np.exp(1j * phase_img))
     return np.minimum(np.abs(np.real(fft.ifft2(fft.fftshift(recon_img_hp)))), 255)
 
