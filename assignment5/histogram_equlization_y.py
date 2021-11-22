@@ -4,19 +4,33 @@ import numpy as np
 
 
 def run():
-    filename = sys.argv[-1]
+    filename = sys.argv[1]
+    s = float(sys.argv[2])
     img = cv2.imread(filename)
     name = filename.split('.')[0]
 
-    result = equalize_histogram_y(img)
-    cv2.imwrite(name + "_equalized.png", result)
+    result = equalize_histogram_y(img, s)
+    cv2.imwrite(name + "_equalized_" + str(s) + ".png", result)
 
 
-def equalize_histogram_y(img: np.ndarray) -> np.ndarray:
+def equalize_histogram_y(img: np.ndarray, s: float) -> np.ndarray:
     y, cr, cb = convert_to_YCrCb(img)
     equalized_y = equalize_histogram(y)
-    equalized_ycrcb = (np.dstack((equalized_y, cr, cb))).astype(np.uint8)
-    result = cv2.cvtColor(equalized_ycrcb, cv2.COLOR_YCR_CB2BGR)
+
+    height, width, channel = img.shape
+    result = np.zeros_like(img, dtype=np.float64)
+    for h in range(height):
+        for w in range(width):
+            if y[h, w] == 0:
+                result[h, w] = np.zeros(3)
+                continue
+            result[h, w, 0] = equalized_y[h, w] * \
+                pow((img[h, w, 0] / y[h, w]), s)
+            result[h, w, 1] = equalized_y[h, w] * \
+                pow((img[h, w, 1] / y[h, w]), s)
+            result[h, w, 2] = equalized_y[h, w] * \
+                pow((img[h, w, 2] / y[h, w]), s)
+
     return result
 
 
