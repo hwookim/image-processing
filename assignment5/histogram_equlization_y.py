@@ -30,8 +30,7 @@ def equalize_histogram_y(img: np.ndarray, s: float) -> np.ndarray:
                 pow((img[h, w, 1] / y[h, w]), s)
             result[h, w, 2] = equalized_y[h, w] * \
                 pow((img[h, w, 2] / y[h, w]), s)
-
-    return result
+    return np.clip(result, 0, 255)
 
 
 def convert_to_YCrCb(img: np.ndarray):
