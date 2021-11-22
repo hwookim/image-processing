@@ -21,7 +21,8 @@ def equalize_histogram_y(img: np.ndarray, s: float) -> np.ndarray:
     trans_equalized_y = np.transpose(
         np.tile(equalized_y, (3, 1, 1)), (1, 2, 0))
     trans_y = np.transpose(np.tile(y, (3, 1, 1)), (1, 2, 0))
-    result = trans_equalized_y * (np.divide(img, trans_y) ** s)
+    result = trans_equalized_y * \
+        (np.divide(img, trans_y, where=trans_y != 0) ** s)
 
     return np.clip(result, 0, 255)
 
