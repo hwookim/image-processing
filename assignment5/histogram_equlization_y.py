@@ -18,19 +18,10 @@ def equalize_histogram_y(img: np.ndarray, s: float) -> np.ndarray:
     y, cr, cb = convert_to_YCrCb(img)
     equalized_y = equalize_histogram(y)
 
-    height, width, channel = img.shape
-    result = np.zeros_like(img, dtype=np.float64)
-    for h in range(height):
-        for w in range(width):
-            if y[h, w] == 0:
-                result[h, w] = np.zeros(3)
-                continue
-            result[h, w, 0] = equalized_y[h, w] * \
-                pow((img[h, w, 0] / y[h, w]), s)
-            result[h, w, 1] = equalized_y[h, w] * \
-                pow((img[h, w, 1] / y[h, w]), s)
-            result[h, w, 2] = equalized_y[h, w] * \
-                pow((img[h, w, 2] / y[h, w]), s)
+    trans_equalized_y = np.transpose(
+        np.tile(equalized_y, (3, 1, 1)), (1, 2, 0))
+    trans_y = np.transpose(np.tile(y, (3, 1, 1)), (1, 2, 0))
+    result = trans_equalized_y * (np.divide(img, trans_y) ** s)
 
     return np.clip(result, 0, 255)
 
