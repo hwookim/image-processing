@@ -6,6 +6,7 @@ import numpy as np
 def run():
     filename = sys.argv[1]
     s = float(sys.argv[2])
+
     img = cv2.imread(filename)
     name = filename.split('.')[0]
 
@@ -30,12 +31,14 @@ def equalize_histogram_y(img: np.ndarray, s: float) -> np.ndarray:
                 pow((img[h, w, 1] / y[h, w]), s)
             result[h, w, 2] = equalized_y[h, w] * \
                 pow((img[h, w, 2] / y[h, w]), s)
+
     return np.clip(result, 0, 255)
 
 
 def convert_to_YCrCb(img: np.ndarray):
     ycrcb = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
     y, cr, cb = cv2.split(ycrcb)
+
     return y, cr, cb
 
 
@@ -53,6 +56,7 @@ def equalize_histogram(img: np.ndarray) -> np.ndarray:
     for x in range(width):
         for y in range(height):
             result[y, x] = nomalized_level[img[y, x]]
+
     return result
 
 
